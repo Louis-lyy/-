@@ -1,0 +1,1968 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>情感助手小程序 - 完整版</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen', 'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue', sans-serif;
+            background-color: #f5f5f5;
+            color: #333;
+            line-height: 1.6;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .phone-frame {
+            width: 390px;
+            height: 844px;
+            background: #000;
+            border-radius: 40px;
+            padding: 8px;
+            box-shadow: 0 0 30px rgba(0,0,0,0.3);
+        }
+
+        .container {
+            width: 100%;
+            height: 100%;
+            background: #fff;
+            border-radius: 32px;
+            overflow: hidden;
+            position: relative;
+        }
+
+        /* 页面切换 */
+        .page {
+            display: none;
+            height: calc(100% - 60px);
+            overflow-y: auto;
+            animation: fadeIn 0.3s ease-out;
+        }
+
+        .page.active {
+            display: block;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* 顶部导航 */
+        .header {
+            background: linear-gradient(135deg, #2196F3 0%, #1976D2 100%);
+            color: white;
+            padding: 15px 20px;
+            text-align: center;
+            position: relative;
+            height: 60px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .header h1 {
+            font-size: 16px;
+            font-weight: bold;
+        }
+
+        .back-btn {
+            position: absolute;
+            left: 20px;
+            top: 50%;
+            transform: translateY(-50%);
+            background: none;
+            border: none;
+            color: white;
+            font-size: 18px;
+            cursor: pointer;
+        }
+
+        /* 卡片样式 */
+        .card {
+            background: white;
+            margin: 8px;
+            border-radius: 12px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+            overflow: hidden;
+        }
+
+        /* 英雄区域 */
+        .hero-section {
+            background: linear-gradient(135deg, #2196F3 0%, #1976D2 100%);
+            color: white;
+            text-align: center;
+            padding: 30px 20px;
+        }
+
+        .hero-content h2 {
+            font-size: 24px;
+            font-weight: bold;
+            margin-bottom: 8px;
+        }
+
+        .hero-content p {
+            font-size: 14px;
+            opacity: 0.9;
+        }
+
+        /* 输入区域 */
+        .input-section {
+            padding: 20px;
+        }
+
+        .input-area {
+            width: 100%;
+            min-height: 100px;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            padding: 12px;
+            font-size: 14px;
+            resize: vertical;
+            margin-bottom: 15px;
+        }
+
+        .input-area:focus {
+            outline: none;
+            border-color: #2196F3;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #2196F3 0%, #1976D2 100%);
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 8px;
+            font-size: 14px;
+            cursor: pointer;
+            float: right;
+            transition: all 0.3s ease;
+        }
+
+        .btn-primary:hover {
+            background: linear-gradient(135deg, #1976D2 0%, #1565C0 100%);
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(33, 150, 243, 0.3);
+        }
+
+        /* 功能区域 */
+        .features-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 12px;
+            padding: 20px;
+        }
+
+        .feature-item {
+            background: white;
+            border-radius: 12px;
+            padding: 16px;
+            text-align: center;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .feature-item:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 16px rgba(33, 150, 243, 0.2);
+        }
+
+        .feature-item:active {
+            transform: translateY(0);
+        }
+
+        /* 标签样式 */
+        .tag {
+            background: #E3F2FD;
+            color: #1976D2;
+            padding: 4px 8px;
+            border-radius: 12px;
+            font-size: 10px;
+            margin: 2px;
+            display: inline-block;
+        }
+
+        /* 分类标签 */
+        .category-tabs {
+            display: flex;
+            padding: 0 20px;
+            margin-bottom: 15px;
+            overflow-x: auto;
+        }
+
+        .category-tab {
+            padding: 8px 16px;
+            margin-right: 10px;
+            background: white;
+            border: 1px solid #e0e0e0;
+            border-radius: 20px;
+            font-size: 12px;
+            cursor: pointer;
+            white-space: nowrap;
+            transition: all 0.3s ease;
+        }
+
+        .category-tab.active {
+            background: #2196F3;
+            color: white;
+            border-color: #2196F3;
+        }
+
+        /* 筛选标签 */
+        .filter-tags {
+            display: flex;
+            flex-wrap: wrap;
+            padding: 0 20px;
+            margin-bottom: 15px;
+        }
+
+        .filter-tag {
+            background: white;
+            border: 1px solid #e0e0e0;
+            padding: 6px 12px;
+            margin: 4px;
+            border-radius: 16px;
+            font-size: 10px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .filter-tag.active {
+            background: #2196F3;
+            color: white;
+            border-color: #2196F3;
+        }
+
+        /* 聊天气泡样式 */
+        .chat-bubble {
+            background: white;
+            border-radius: 12px;
+            padding: 12px;
+            margin: 8px 20px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+            max-width: 70%;
+            font-size: 14px;
+            position: relative;
+        }
+
+        .tab-item.active {
+            color: #2196F3;
+        }
+
+        /* 情头页面样式 */
+        .avatar-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 12px;
+            padding: 15px;
+        }
+
+        .avatar-item {
+            aspect-ratio: 1;
+            background: #f8f9fa;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 24px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            border: 2px solid transparent;
+        }
+
+        .avatar-item:hover {
+            background: #e9ecef;
+            border-color: #4CAF50;
+        }
+
+        .avatar-item.selected {
+            background: #4CAF50;
+            color: white;
+        }
+
+        /* 情话页面样式 */
+        .love-words-section {
+            padding: 15px;
+        }
+
+        .love-word-item {
+            background: #f8f9fa;
+            border-radius: 8px;
+            padding: 15px;
+            margin-bottom: 10px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .love-word-item:hover {
+            background: #e9ecef;
+        }
+
+        .love-word-text {
+            font-size: 13px;
+            color: #333;
+            line-height: 1.4;
+            margin-bottom: 8px;
+        }
+
+        .love-word-actions {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .love-word-stats {
+            font-size: 10px;
+            color: #999;
+        }
+
+        .btn-copy {
+            background: #4CAF50;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            padding: 4px 8px;
+            font-size: 10px;
+            cursor: pointer;
+        }
+
+        /* 朋友圈页面样式 */
+        .moments-section {
+            padding: 15px;
+        }
+
+        .moments-filter {
+            display: flex;
+            gap: 8px;
+            margin-bottom: 15px;
+            overflow-x: auto;
+        }
+
+        .moment-item {
+            background: white;
+            border-radius: 8px;
+            padding: 15px;
+            margin-bottom: 12px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+
+        .moment-header {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 10px;
+        }
+
+        .moment-avatar {
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #4CAF50 0%, #45a049 100%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 12px;
+        }
+
+        .moment-info {
+            flex: 1;
+        }
+
+        .moment-author {
+            font-size: 12px;
+            font-weight: bold;
+            color: #333;
+        }
+
+        .moment-time {
+            font-size: 10px;
+            color: #999;
+        }
+
+        .moment-content {
+            font-size: 12px;
+            color: #333;
+            line-height: 1.4;
+            margin-bottom: 10px;
+        }
+
+        .moment-actions {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .action-btn {
+            background: none;
+            border: none;
+            color: #666;
+            font-size: 10px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 4px;
+        }
+
+        /* 约会建议页面样式 */
+        .date-suggestions {
+            padding: 15px;
+        }
+
+        .suggestion-card {
+            background: white;
+            border-radius: 8px;
+            padding: 15px;
+            margin-bottom: 12px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+
+        .suggestion-header {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 10px;
+        }
+
+        .suggestion-icon {
+            width: 40px;
+            height: 40px;
+            border-radius: 8px;
+            background: linear-gradient(135deg, #4CAF50 0%, #45a049 100%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 18px;
+        }
+
+        .suggestion-title {
+            font-size: 14px;
+            font-weight: bold;
+            color: #333;
+            margin-bottom: 4px;
+        }
+
+        .suggestion-desc {
+            font-size: 11px;
+            color: #666;
+        }
+
+        .suggestion-content {
+            font-size: 12px;
+            color: #333;
+            line-height: 1.4;
+            margin-bottom: 10px;
+        }
+
+        .suggestion-tags {
+            display: flex;
+            gap: 6px;
+            margin-bottom: 10px;
+        }
+
+        .suggestion-tag {
+            background: #f0f8ff;
+            color: #4CAF50;
+            padding: 4px 8px;
+            border-radius: 12px;
+            font-size: 9px;
+            border: 1px solid #e3f2fd;
+        }
+
+        .suggestion-actions {
+            display: flex;
+            gap: 8px;
+        }
+
+        .btn-detail {
+            background: #4CAF50;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            padding: 6px 12px;
+            font-size: 10px;
+            cursor: pointer;
+        }
+
+        .btn-save {
+            background: #f0f0f0;
+            color: #666;
+            border: none;
+            border-radius: 4px;
+            padding: 6px 12px;
+            font-size: 10px;
+            cursor: pointer;
+        }
+
+        /* 底部导航 */
+        .tab-bar {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: white;
+            border-top: 1px solid #e0e0e0;
+            display: flex;
+            padding: 6px 0;
+            height: 60px;
+        }
+
+        .tab-item {
+            flex: 1;
+            text-align: center;
+            padding: 6px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .tab-item.active {
+            color: #2196F3;
+        }
+
+        .tab-icon {
+            font-size: 18px;
+            margin-bottom: 2px;
+            display: block;
+        }
+
+        .tab-text {
+            font-size: 9px;
+        }
+
+        /* 清除浮动 */
+        .clearfix::after {
+            content: "";
+            display: table;
+            clear: both;
+        }
+
+        /* 滚动条样式 */
+        .page::-webkit-scrollbar {
+            width: 4px;
+        }
+
+        .page::-webkit-scrollbar-track {
+            background: #f1f1f1;
+        }
+
+        .page::-webkit-scrollbar-thumb {
+            background: #c1c1c1;
+            border-radius: 2px;
+        }
+
+        .page::-webkit-scrollbar-thumb:hover {
+            background: #a8a8a8;
+        }
+    </style>
+</head>
+<body>
+    <div class="phone-frame">
+        <div class="container">
+            <!-- 主页 -->
+            <div class="page active" id="home-page">
+                <!-- 顶部导航 -->
+                <div class="header">
+                    <h1>首页</h1>
+                </div>
+
+                <!-- 英雄区域 -->
+                <div class="hero-section">
+                    <div class="hero-content">
+                        <h2>情感助手</h2>
+                        <p>让爱情更美好</p>
+                    </div>
+                </div>
+
+                <!-- 输入区域 -->
+                <div class="card">
+                    <div class="input-section">
+                        <textarea class="input-area" placeholder="输入你的问题(即她的回复),我来给你说怎么回,包的"></textarea>
+                        <button class="btn-primary">获取回复</button>
+                        <div class="clearfix"></div>
+                    </div>
+                </div>
+
+                <!-- 热搜标签 -->
+                <div class="card">
+                    <div style="padding: 15px;">
+                        <div style="font-size: 14px; font-weight: bold; color: #333; margin-bottom: 10px;">热搜</div>
+                        <div style="display: flex; flex-wrap: wrap; gap: 8px;">
+                            <div class="tag">生活分享</div>
+                            <div class="tag">刚加好友</div>
+                            <div class="tag">我去洗澡了</div>
+                            <div class="tag">影视话梗</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 功能模块 -->
+                <div class="card">
+                    <div style="padding: 15px;">
+                        <div style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px;">
+                            <div class="feature-item" data-feature="avatar">
+                                <div style="width: 35px; height: 35px; background: white; border-radius: 50%; margin: 0 auto 6px; display: flex; align-items: center; justify-content: center; box-shadow: 0 2px 8px rgba(0,0,0,0.1);">💕</div>
+                                <div style="font-size: 10px; color: #333;">情头</div>
+                            </div>
+                            <div class="feature-item" data-feature="love-words">
+                                <div style="width: 35px; height: 35px; background: white; border-radius: 50%; margin: 0 auto 6px; display: flex; align-items: center; justify-content: center; box-shadow: 0 2px 8px rgba(0,0,0,0.1);">💝</div>
+                                <div style="font-size: 10px; color: #333;">情话</div>
+                            </div>
+                            <div class="feature-item" data-feature="moments">
+                                <div style="width: 35px; height: 35px; background: white; border-radius: 50%; margin: 0 auto 6px; display: flex; align-items: center; justify-content: center; box-shadow: 0 2px 8px rgba(0,0,0,0.1);">💬</div>
+                                <div style="font-size: 10px; color: #333;">撩妹朋友圈</div>
+                            </div>
+                            <div class="feature-item" data-feature="date-suggestions">
+                                <div style="width: 35px; height: 35px; background: white; border-radius: 50%; margin: 0 auto 6px; display: flex; align-items: center; justify-content: center; box-shadow: 0 2px 8px rgba(0,0,0,0.1);">💑</div>
+                                <div style="font-size: 10px; color: #333;">约会建议</div>
+                            </div>
+                        </div>
+                        <!-- 在现有4个小功能项下面添加两个大模块 -->
+                        <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px; margin-top: 12px;">
+                            <div class="feature-item" data-feature="emotion-connect">
+                                <div style="width: 50px; height: 50px; background: white; border-radius: 50%; margin: 0 auto 10px; display: flex; align-items: center; justify-content: center; box-shadow: 0 2px 8px rgba(0,0,0,0.1); font-size: 24px;">🔗</div>
+                                <div style="font-size: 12px; color: #333; font-weight: bold;">情感连线</div>
+                                <div style="font-size: 9px; color: #666; margin-top: 4px;">连接情感专家</div>
+                            </div>
+                            <div class="feature-item" data-feature="mbti">
+                                <div style="width: 50px; height: 50px; background: white; border-radius: 50%; margin: 0 auto 10px; display: flex; align-items: center; justify-content: center; box-shadow: 0 2px 8px rgba(0,0,0,0.1); font-size: 24px;">🧠</div>
+                                <div style="font-size: 12px; color: #333; font-weight: bold;">mbti测评</div>
+                                <div style="font-size: 9px; color: #666; margin-top: 4px;">性格测试题库</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 情头页面 -->
+            <div class="page" id="avatar-page">
+                <div class="header">
+                    <button class="back-btn" data-back="home-page">←</button>
+                    <h1>情头</h1>
+                </div>
+                
+                <div class="card">
+                    <div class="avatar-grid">
+                        <div class="avatar-item">👫</div>
+                        <div class="avatar-item">💕</div>
+                        <div class="avatar-item">💑</div>
+                        <div class="avatar-item">💖</div>
+                        <div class="avatar-item">💝</div>
+                        <div class="avatar-item">💗</div>
+                        <div class="avatar-item">💘</div>
+                        <div class="avatar-item">💞</div>
+                        <div class="avatar-item">💟</div>
+                        <div class="avatar-item">💌</div>
+                        <div class="avatar-item">💍</div>
+                        <div class="avatar-item">💎</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 情话页面 -->
+            <div class="page" id="love-words-page">
+                <div class="header">
+                    <button class="back-btn" data-back="home-page">←</button>
+                    <h1>情话</h1>
+                </div>
+                
+                <div class="category-tabs">
+                    <div class="category-tab active">甜蜜</div>
+                    <div class="category-tab">浪漫</div>
+                    <div class="category-tab">幽默</div>
+                    <div class="category-tab">深情</div>
+                    <div class="category-tab">表白</div>
+                </div>
+
+                <div class="love-words-section">
+                    <div class="love-word-item">
+                        <div class="love-word-text">你是我见过最美的风景，也是我心中最温暖的阳光</div>
+                        <div class="love-word-actions">
+                            <span class="love-word-stats">❤️ 1.2k</span>
+                            <button class="btn-copy">复制</button>
+                        </div>
+                    </div>
+                    <div class="love-word-item">
+                        <div class="love-word-text">遇见你是我这辈子最幸运的事，爱上你是我最正确的选择</div>
+                        <div class="love-word-actions">
+                            <span class="love-word-stats">❤️ 856</span>
+                            <button class="btn-copy">复制</button>
+                        </div>
+                    </div>
+                    <div class="love-word-item">
+                        <div class="love-word-text">我想和你一起看遍世间美景，尝遍人间美味，走过春夏秋冬</div>
+                        <div class="love-word-actions">
+                            <span class="love-word-stats">❤️ 723</span>
+                            <button class="btn-copy">复制</button>
+                        </div>
+                    </div>
+                    <div class="love-word-item">
+                        <div class="love-word-text">你的笑容是我每天最期待的礼物，你的声音是我最想听的旋律</div>
+                        <div class="love-word-actions">
+                            <span class="love-word-stats">❤️ 654</span>
+                            <button class="btn-copy">复制</button>
+                        </div>
+                    </div>
+                    <div class="love-word-item">
+                        <div class="love-word-text">我愿意用一生的时间，去爱你，去疼你，去守护你</div>
+                        <div class="love-word-actions">
+                            <span class="love-word-stats">❤️ 589</span>
+                            <button class="btn-copy">复制</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 撩妹朋友圈页面 -->
+            <div class="page" id="moments-page">
+                <div class="header">
+                    <button class="back-btn" data-back="home-page">←</button>
+                    <h1>撩妹朋友圈</h1>
+                </div>
+                
+                <div class="moments-section">
+                    <div class="moments-filter">
+                        <div class="filter-tag active">全部</div>
+                        <div class="filter-tag">生活分享</div>
+                        <div class="filter-tag">美食</div>
+                        <div class="filter-tag">旅行</div>
+                        <div class="filter-tag">运动</div>
+                        <div class="filter-tag">工作</div>
+                    </div>
+
+                    <div class="moment-item">
+                        <div class="moment-header">
+                            <div class="moment-avatar">👨</div>
+                            <div class="moment-info">
+                                <div class="moment-author">阳光男孩</div>
+                                <div class="moment-time">2小时前</div>
+                            </div>
+                        </div>
+                        <div class="moment-content">
+                            今天去健身房锻炼，感觉整个人都充满了能量！💪 坚持运动不仅让身体更健康，也让心情更愉悦。希望每个人都能找到属于自己的运动方式～
+                        </div>
+                        <div class="moment-actions">
+                            <button class="action-btn">❤️ 点赞</button>
+                            <button class="action-btn">💬 评论</button>
+                            <button class="action-btn">📤 分享</button>
+                        </div>
+                    </div>
+
+                    <div class="moment-item">
+                        <div class="moment-header">
+                            <div class="moment-avatar">👨</div>
+                            <div class="moment-info">
+                                <div class="moment-author">阳光男孩</div>
+                                <div class="moment-time">昨天</div>
+                            </div>
+                        </div>
+                        <div class="moment-content">
+                            发现了一家超级好吃的甜品店！🍰 这里的提拉米苏简直绝了，甜而不腻，入口即化。推荐给所有喜欢甜食的朋友们～
+                        </div>
+                        <div class="moment-actions">
+                            <button class="action-btn">❤️ 点赞</button>
+                            <button class="action-btn">💬 评论</button>
+                            <button class="action-btn">📤 分享</button>
+                        </div>
+                    </div>
+
+                    <div class="moment-item">
+                        <div class="moment-header">
+                            <div class="moment-avatar">👨</div>
+                            <div class="moment-info">
+                                <div class="moment-author">阳光男孩</div>
+                                <div class="moment-time">3天前</div>
+                            </div>
+                        </div>
+                        <div class="moment-content">
+                            周末去爬山，山顶的风景真的太美了！🏔️ 站在高处俯瞰整个城市，所有的烦恼都烟消云散了。生活就是要这样，偶尔放慢脚步，感受大自然的美好。
+                        </div>
+                        <div class="moment-actions">
+                            <button class="action-btn">❤️ 点赞</button>
+                            <button class="action-btn">💬 评论</button>
+                            <button class="action-btn">📤 分享</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 约会建议页面 -->
+            <div class="page" id="date-suggestions-page">
+                <div class="header">
+                    <button class="back-btn" data-back="home-page">←</button>
+                    <h1>约会建议</h1>
+                </div>
+                
+                <div class="date-suggestions">
+                    <div class="suggestion-card">
+                        <div class="suggestion-header">
+                            <div class="suggestion-icon">🍽️</div>
+                            <div>
+                                <div class="suggestion-title">浪漫晚餐</div>
+                                <div class="suggestion-desc">精心挑选的餐厅，营造浪漫氛围</div>
+                            </div>
+                        </div>
+                        <div class="suggestion-content">
+                            选择一家环境优雅的餐厅，提前预订靠窗的位置。可以选择她喜欢的菜系，或者尝试一些新奇的料理。记得准备一些小惊喜，比如她喜欢的花或者小礼物。
+                        </div>
+                        <div class="suggestion-tags">
+                            <span class="suggestion-tag">室内</span>
+                            <span class="suggestion-tag">晚餐</span>
+                            <span class="suggestion-tag">浪漫</span>
+                        </div>
+                        <div class="suggestion-actions">
+                            <button class="btn-detail">查看详情</button>
+                            <button class="btn-save">收藏</button>
+                        </div>
+                    </div>
+
+                    <div class="suggestion-card">
+                        <div class="suggestion-header">
+                            <div class="suggestion-icon">🎬</div>
+                            <div>
+                                <div class="suggestion-title">看电影</div>
+                                <div class="suggestion-desc">选择她喜欢的电影类型</div>
+                            </div>
+                        </div>
+                        <div class="suggestion-content">
+                            提前了解她喜欢的电影类型，选择一部口碑不错的电影。可以选择情侣座，准备一些零食和饮料。看完电影后可以一起讨论剧情，增进了解。
+                        </div>
+                        <div class="suggestion-tags">
+                            <span class="suggestion-tag">室内</span>
+                            <span class="suggestion-tag">娱乐</span>
+                            <span class="suggestion-tag">轻松</span>
+                        </div>
+                        <div class="suggestion-actions">
+                            <button class="btn-detail">查看详情</button>
+                            <button class="btn-save">收藏</button>
+                        </div>
+                    </div>
+
+                    <div class="suggestion-card">
+                        <div class="suggestion-header">
+                            <div class="suggestion-icon">🌳</div>
+                            <div>
+                                <div class="suggestion-title">公园散步</div>
+                                <div class="suggestion-desc">在自然环境中放松心情</div>
+                            </div>
+                        </div>
+                        <div class="suggestion-content">
+                            选择一个风景优美的公园，可以一起散步、拍照、野餐。这种轻松的环境有助于放松心情，增进感情。可以准备一些零食和饮料，享受美好的时光。
+                        </div>
+                        <div class="suggestion-tags">
+                            <span class="suggestion-tag">户外</span>
+                            <span class="suggestion-tag">自然</span>
+                            <span class="suggestion-tag">轻松</span>
+                        </div>
+                        <div class="suggestion-actions">
+                            <button class="btn-detail">查看详情</button>
+                            <button class="btn-save">收藏</button>
+                        </div>
+                    </div>
+
+                    <div class="suggestion-card">
+                        <div class="suggestion-header">
+                            <div class="suggestion-icon">🎨</div>
+                            <div>
+                                <div class="suggestion-title">手工DIY</div>
+                                <div class="suggestion-desc">一起创作，留下美好回忆</div>
+                            </div>
+                        </div>
+                        <div class="suggestion-content">
+                            可以选择陶艺、绘画、手工制作等活动。这种互动性强的活动可以增进感情，同时还能留下有意义的纪念品。选择她感兴趣的手工项目，一起享受创作的乐趣。
+                        </div>
+                        <div class="suggestion-tags">
+                            <span class="suggestion-tag">室内</span>
+                            <span class="suggestion-tag">创意</span>
+                            <span class="suggestion-tag">互动</span>
+                        </div>
+                        <div class="suggestion-actions">
+                            <button class="btn-detail">查看详情</button>
+                            <button class="btn-save">收藏</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 课程页面 -->
+            <div class="page" id="courses-page">
+                <div class="header">
+                    <h1>课程</h1>
+                </div>
+
+                <div class="category-tabs">
+                    <div class="category-tab active">全部</div>
+                    <div class="category-tab">恋爱技巧</div>
+                    <div class="category-tab">沟通技巧</div>
+                    <div class="category-tab">心理分析</div>
+                    <div class="category-tab">约会指南</div>
+                </div>
+
+                <div style="padding: 15px;">
+                    <div style="font-size: 16px; font-weight: bold; color: #333; margin-bottom: 12px;">精选课程</div>
+                    <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px; margin-bottom: 20px;">
+                        <div style="background: white; border-radius: 8px; overflow: hidden; box-shadow: 0 2px 8px rgba(0,0,0,0.1);">
+                            <div style="width: 100%; height: 80px; background: linear-gradient(135deg, #2196F3 0%, #1976D2 100%); display: flex; align-items: center; justify-content: center; color: white; font-size: 24px;">💕</div>
+                            <div style="padding: 10px;">
+                                <div style="font-size: 12px; font-weight: bold; color: #333; margin-bottom: 4px; line-height: 1.2;">恋爱心理学基础</div>
+                                <div style="font-size: 10px; color: #666; margin-bottom: 6px; line-height: 1.2;">了解恋爱中的心理变化</div>
+                                <div style="display: flex; justify-content: space-between; align-items: center;">
+                                    <div style="font-size: 10px; color: #2196F3; font-weight: bold;">免费</div>
+                                    <div style="font-size: 9px; color: #999;">1.2万人学习</div>
+                                </div>
+                            </div>
+                        </div>
+                        <div style="background: white; border-radius: 8px; overflow: hidden; box-shadow: 0 2px 8px rgba(0,0,0,0.1);">
+                            <div style="width: 100%; height: 80px; background: linear-gradient(135deg, #2196F3 0%, #1976D2 100%); display: flex; align-items: center; justify-content: center; color: white; font-size: 24px;">💬</div>
+                            <div style="padding: 10px;">
+                                <div style="font-size: 12px; font-weight: bold; color: #333; margin-bottom: 4px; line-height: 1.2;">高情商沟通技巧</div>
+                                <div style="font-size: 10px; color: #666; margin-bottom: 6px; line-height: 1.2;">学会与异性有效沟通</div>
+                                <div style="display: flex; justify-content: space-between; align-items: center;">
+                                    <div style="font-size: 10px; color: #2196F3; font-weight: bold;">¥29</div>
+                                    <div style="font-size: 9px; color: #999;">8.5万人学习</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div style="font-size: 16px; font-weight: bold; color: #333; margin-bottom: 12px;">全部课程</div>
+                    <div style="display: flex; gap: 12px; padding: 12px 0; border-bottom: 1px solid #f0f0f0;">
+                        <div style="width: 60px; height: 60px; background: linear-gradient(135deg, #2196F3 0%, #1976D2 100%); border-radius: 8px; display: flex; align-items: center; justify-content: center; color: white; font-size: 20px; flex-shrink: 0;">📚</div>
+                        <div style="flex: 1;">
+                            <div style="font-size: 13px; font-weight: bold; color: #333; margin-bottom: 4px; line-height: 1.2;">如何读懂女生的暗示</div>
+                            <div style="font-size: 10px; color: #666; margin-bottom: 6px; line-height: 1.2;">学会识别女生对你的好感信号，把握恋爱机会</div>
+                            <div style="display: flex; justify-content: space-between; align-items: center;">
+                                <div style="font-size: 11px; color: #2196F3; font-weight: bold;">¥19</div>
+                                <div style="font-size: 9px; color: #999;">5.6万人学习</div>
+                            </div>
+                        </div>
+                    </div>
+                    <div style="display: flex; gap: 12px; padding: 12px 0; border-bottom: 1px solid #f0f0f0;">
+                        <div style="width: 60px; height: 60px; background: linear-gradient(135deg, #2196F3 0%, #1976D2 100%); border-radius: 8px; display: flex; align-items: center; justify-content: center; color: white; font-size: 20px; flex-shrink: 0;">💝</div>
+                        <div style="flex: 1;">
+                            <div style="font-size: 13px; font-weight: bold; color: #333; margin-bottom: 4px; line-height: 1.2;">浪漫约会策划指南</div>
+                            <div style="font-size: 10px; color: #666; margin-bottom: 6px; line-height: 1.2;">从约会地点到话题选择，让你成为约会达人</div>
+                            <div style="display: flex; justify-content: space-between; align-items: center;">
+                                <div style="font-size: 11px; color: #2196F3; font-weight: bold;">¥39</div>
+                                <div style="font-size: 9px; color: #999;">3.2万人学习</div>
+                            </div>
+                        </div>
+                    </div>
+                    <div style="display: flex; gap: 12px; padding: 12px 0; border-bottom: 1px solid #f0f0f0;">
+                        <div style="width: 60px; height: 60px; background: linear-gradient(135deg, #2196F3 0%, #1976D2 100%); border-radius: 8px; display: flex; align-items: center; justify-content: center; color: white; font-size: 20px; flex-shrink: 0;">🎭</div>
+                        <div style="flex: 1;">
+                            <div style="font-size: 13px; font-weight: bold; color: #333; margin-bottom: 4px; line-height: 1.2;">恋爱中的情绪管理</div>
+                            <div style="font-size: 10px; color: #666; margin-bottom: 6px; line-height: 1.2;">学会控制情绪，避免在恋爱中做出冲动决定</div>
+                            <div style="display: flex; justify-content: space-between; align-items: center;">
+                                <div style="font-size: 11px; color: #2196F3; font-weight: bold;">¥25</div>
+                                <div style="font-size: 9px; color: #999;">4.1万人学习</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 发现页面 -->
+            <div class="page" id="help-page">
+                <div class="header">
+                    <h1>发现</h1>
+                </div>
+
+                <!-- 图片上传区域 -->
+                <div class="card">
+                    <div style="padding: 15px;">
+                        <div style="background: linear-gradient(135deg, #2196F3 0%, #1976D2 100%); height: 120px; display: flex; flex-direction: column; align-items: center; justify-content: center; color: white; text-align: center; border-radius: 12px; margin-bottom: 12px;">
+                            <div style="font-size: 12px; font-weight: bold;">上传聊天截图</div>
+                            <div style="font-size: 10px; opacity: 0.8; margin-top: 4px;">AI智能分析，帮你找到最佳回复</div>
+                        </div>
+                        
+                        <div style="text-align: center; margin-bottom: 12px;">
+                            <div style="font-size: 10px; color: #666;">支持微信、QQ、微博等主流社交平台</div>
+                        </div>
+
+                        <div style="display: flex; flex-direction: column; align-items: center; gap: 12px;">
+                            <div style="width: 100%; height: 50px; border: 2px dashed #ddd; border-radius: 8px; display: flex; align-items: center; justify-content: center; background: #f8f9fa; cursor: pointer; transition: all 0.3s ease;">
+                                <div style="text-align: center;">
+                                    <div style="font-size: 12px; color: #666; margin-bottom: 4px;">📷 点击上传截图</div>
+                                    <div style="font-size: 11px; color: #999;">支持jpg、png格式，最大10MB</div>
+                                </div>
+                            </div>
+                            <button style="background: #333; color: white; border: none; border-radius: 6px; padding: 8px 16px; font-size: 12px; display: flex; align-items: center; gap: 6px; cursor: pointer;">
+                                <span>📤</span>
+                                <span>上传图片</span>
+                            </button>
+                            <div style="font-size: 9px; color: #999; text-align: center;">上传聊天截图，AI将分析对话内容并给出高情商回复建议</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 高情商回复功能 -->
+                <div class="card">
+                    <div style="padding: 15px;">
+                        <div style="display: flex; align-items: center; gap: 6px; margin-bottom: 10px;">
+                            <span style="font-size: 14px;">💡</span>
+                            <span style="font-size: 14px; font-weight: bold; color: #333;">高情商回复</span>
+                        </div>
+                        <div style="font-size: 11px; color: #666; line-height: 1.3; margin-bottom: 10px;">
+                            基于AI技术，分析聊天内容，提供多种高情商回复选项，让你的回复更有魅力
+                        </div>
+                        <div style="display: flex; align-items: center; gap: 4px;">
+                            <span style="font-size: 10px;">📊</span>
+                            <span style="font-size: 10px; color: #999;">已帮助超过50万用户提升聊天技巧</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 输入区域 -->
+                <div class="card">
+                    <div style="padding: 15px;">
+                        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px;">
+                            <span style="font-size: 14px; font-weight: bold; color: #333;">输入她的回复</span>
+                            <span style="font-size: 10px; color: #999;">0/200</span>
+                        </div>
+                        <textarea style="width: 100%; min-height: 60px; background: #f8f9fa; border: 2px solid #e9ecef; border-radius: 8px; padding: 12px; font-size: 12px; resize: none; margin-bottom: 12px;" placeholder="比如：我去洗澡了&#10;或者：嗯嗯&#10;或者：好的"></textarea>
+                        <button style="background: linear-gradient(135deg, #2196F3 0%, #1976D2 100%); color: white; border: none; border-radius: 6px; padding: 8px 16px; font-size: 12px; cursor: pointer; float: right;">获取回复</button>
+                        <div style="clear: both;"></div>
+                    </div>
+                </div>
+
+                <!-- 场景选择 -->
+                <div class="card">
+                    <div style="padding: 15px;">
+                        <span style="font-size: 12px; color: #333; margin-bottom: 10px; display: block;">选择场景</span>
+                        <div style="display: flex; flex-wrap: wrap; gap: 8px;">
+                            <div style="background: #2196F3; color: white; padding: 6px 10px; border-radius: 12px; font-size: 10px; cursor: pointer;">全部</div>
+                            <div style="background: #f0f0f0; color: #666; padding: 6px 10px; border-radius: 12px; font-size: 10px; cursor: pointer;">刚加好友</div>
+                            <div style="background: #f0f0f0; color: #666; padding: 6px 10px; border-radius: 12px; font-size: 10px; cursor: pointer;">暧昧期</div>
+                            <div style="background: #f0f0f0; color: #666; padding: 6px 10px; border-radius: 12px; font-size: 10px; cursor: pointer;">恋爱中</div>
+                            <div style="background: #f0f0f0; color: #666; padding: 6px 10px; border-radius: 12px; font-size: 10px; cursor: pointer;">挽回期</div>
+                            <div style="background: #f0f0f0; color: #666; padding: 6px 10px; border-radius: 12px; font-size: 10px; cursor: pointer;">分手后</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 回复类型选择 -->
+                <div class="card">
+                    <div style="padding: 15px;">
+                        <span style="font-size: 12px; color: #333; margin-bottom: 10px; display: block;">回复类型</span>
+                        <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px;">
+                            <div style="background: #2196F3; color: white; border: 2px solid #2196F3; border-radius: 8px; padding: 12px; text-align: center; cursor: pointer;">
+                                <span style="font-size: 11px; font-weight: bold; display: block; margin-bottom: 3px;">幽默风趣</span>
+                                <span style="font-size: 8px; opacity: 0.8;">轻松愉快的回复</span>
+                            </div>
+                            <div style="background: #f8f9fa; border: 2px solid #e9ecef; border-radius: 8px; padding: 12px; text-align: center; cursor: pointer;">
+                                <span style="font-size: 11px; font-weight: bold; display: block; margin-bottom: 3px;">温柔体贴</span>
+                                <span style="font-size: 8px; opacity: 0.8;">关心照顾的回复</span>
+                            </div>
+                            <div style="background: #f8f9fa; border: 2px solid #e9ecef; border-radius: 8px; padding: 12px; text-align: center; cursor: pointer;">
+                                <span style="font-size: 11px; font-weight: bold; display: block; margin-bottom: 3px;">浪漫甜蜜</span>
+                                <span style="font-size: 8px; opacity: 0.8;">甜蜜浪漫的回复</span>
+                            </div>
+                            <div style="background: #f8f9fa; border: 2px solid #e9ecef; border-radius: 8px; padding: 12px; text-align: center; cursor: pointer;">
+                                <span style="font-size: 11px; font-weight: bold; display: block; margin-bottom: 3px;">成熟稳重</span>
+                                <span style="font-size: 8px; opacity: 0.8;">成熟稳重的回复</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 分析结果 -->
+                <div class="card">
+                    <div style="padding: 15px;">
+                        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px;">
+                            <span style="font-size: 14px; font-weight: bold; color: #333;">分析结果</span>
+                            <div style="display: flex; gap: 8px;">
+                                <button style="background: #f0f0f0; color: #666; border: none; border-radius: 4px; padding: 4px 8px; font-size: 10px; cursor: pointer;">复制</button>
+                                <button style="background: #f0f0f0; color: #666; border: none; border-radius: 4px; padding: 4px 8px; font-size: 10px; cursor: pointer;">分享</button>
+                            </div>
+                        </div>
+                        <div style="display: flex; flex-direction: column; gap: 12px;">
+                            <div style="display: flex; flex-direction: column; gap: 4px;">
+                                <span style="font-size: 12px; font-weight: bold; color: #333;">情感分析</span>
+                                <span style="font-size: 10px; color: #666; line-height: 1.3;">她的回复显示了对你的好感，建议继续保持这种互动频率</span>
+                            </div>
+                            <div style="display: flex; flex-direction: column; gap: 4px;">
+                                <span style="font-size: 12px; font-weight: bold; color: #333;">回复建议</span>
+                                <span style="font-size: 10px; color: #666; line-height: 1.3;">可以选择幽默风趣或温柔体贴的回复方式，避免过于直接</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 回复选项 -->
+                <div class="card">
+                    <div style="padding: 15px;">
+                        <span style="font-size: 14px; font-weight: bold; color: #333; margin-bottom: 12px; display: block;">推荐回复</span>
+                        <div style="display: flex; flex-direction: column; gap: 10px;">
+                            <div style="background: #f8f9fa; border: 2px solid #e9ecef; border-radius: 8px; padding: 12px; display: flex; justify-content: space-between; align-items: center;">
+                                <span style="font-size: 10px; color: #333; flex: 1; line-height: 1.2;">哈哈，那你慢慢洗，我等你回来继续聊～</span>
+                                <div style="margin-left: 10px;">
+                                    <button style="background: #2196F3; color: white; border: none; border-radius: 4px; padding: 3px 6px; font-size: 8px; cursor: pointer;">复制</button>
+                                </div>
+                            </div>
+                            <div style="background: #f8f9fa; border: 2px solid #e9ecef; border-radius: 8px; padding: 12px; display: flex; justify-content: space-between; align-items: center;">
+                                <span style="font-size: 10px; color: #333; flex: 1; line-height: 1.2;">好的，注意安全哦，洗完记得告诉我</span>
+                                <div style="margin-left: 10px;">
+                                    <button style="background: #2196F3; color: white; border: none; border-radius: 4px; padding: 3px 6px; font-size: 8px; cursor: pointer;">复制</button>
+                                </div>
+                            </div>
+                            <div style="background: #f8f9fa; border: 2px solid #e9ecef; border-radius: 8px; padding: 12px; display: flex; justify-content: space-between; align-items: center;">
+                                <span style="font-size: 10px; color: #333; flex: 1; line-height: 1.2;">嗯嗯，我等你，别洗太久哦～</span>
+                                <div style="margin-left: 10px;">
+                                    <button style="background: #2196F3; color: white; border: none; border-radius: 4px; padding: 3px 6px; font-size: 8px; cursor: pointer;">复制</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 我的页面 -->
+            <div class="page" id="profile-page">
+                <div class="header">
+                    <h1>我的</h1>
+                </div>
+
+                <!-- 用户信息区域 -->
+                <div class="card">
+                    <div style="padding: 15px;">
+                        <div style="display: flex; align-items: center; gap: 12px; position: relative;">
+                            <div style="width: 50px; height: 50px; border-radius: 50%; background: linear-gradient(135deg, #2196F3 0%, #1976D2 100%); display: flex; align-items: center; justify-content: center; color: white; font-size: 20px;">👤</div>
+                            <div style="flex: 1;">
+                                <span style="font-size: 16px; font-weight: bold; color: #333; display: block; margin-bottom: 3px;">情感助手用户</span>
+                                <span style="font-size: 10px; color: #666; display: block; margin-bottom: 3px;">ID: 88888888</span>
+                                <div style="display: flex; align-items: center; gap: 6px;">
+                                    <span style="font-size: 10px; color: #666;">已使用</span>
+                                    <span style="font-size: 10px; color: #ff4757; text-decoration: underline; cursor: pointer;">搜索功能</span>
+                                    <span style="font-size: 10px; color: #666;">365次</span>
+                                </div>
+                            </div>
+                            <div style="display: flex; gap: 6px;">
+                                <button style="background: #2196F3; color: white; border: none; border-radius: 4px; padding: 4px 8px; font-size: 9px; cursor: pointer;">免费版</button>
+                                <button style="background: #f0f0f0; color: #666; border: none; border-radius: 4px; padding: 4px 8px; font-size: 9px; cursor: pointer;">升级VIP</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 我的收藏 -->
+                <div class="card">
+                    <div style="padding: 15px;">
+                        <div style="margin-bottom: 12px;">
+                            <span style="font-size: 14px; font-weight: bold; color: #333;">我的收藏</span>
+                        </div>
+                        <div style="display: flex; flex-direction: column; gap: 10px;">
+                            <div style="height: 50px; background: #f8f9fa; border-radius: 8px; border: 2px dashed #ddd;"></div>
+                            <div style="height: 50px; background: #f8f9fa; border-radius: 8px; border: 2px dashed #ddd;"></div>
+                            <div style="height: 50px; background: #f8f9fa; border-radius: 8px; border: 2px dashed #ddd;"></div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 功能菜单 -->
+                <div class="card">
+                    <div style="padding: 15px;">
+                        <div style="display: flex; flex-direction: column; gap: 0;">
+                            <div style="display: flex; align-items: center; padding: 12px 0; border-bottom: 1px solid #f0f0f0; cursor: pointer;">
+                                <div style="width: 25px; height: 25px; margin-right: 12px; display: flex; align-items: center; justify-content: center; background: #f8f9fa; border-radius: 6px; font-size: 14px;">💬</div>
+                                <div style="flex: 1;">
+                                    <span style="font-size: 13px; color: #333; display: block; margin-bottom: 2px;">聊天记录</span>
+                                    <span style="font-size: 10px; color: #999;">查看历史聊天分析</span>
+                                </div>
+                                <span style="font-size: 10px; color: #ccc;">></span>
+                            </div>
+                            <div style="display: flex; align-items: center; padding: 12px 0; border-bottom: 1px solid #f0f0f0; cursor: pointer;">
+                                <div style="width: 25px; height: 25px; margin-right: 12px; display: flex; align-items: center; justify-content: center; background: #f8f9fa; border-radius: 6px; font-size: 14px;">⭐</div>
+                                <div style="flex: 1;">
+                                    <span style="font-size: 13px; color: #333; display: block; margin-bottom: 2px;">我的收藏</span>
+                                    <span style="font-size: 10px; color: #999;">收藏的回复和技巧</span>
+                                </div>
+                                <span style="font-size: 10px; color: #ccc;">></span>
+                            </div>
+                            <div style="display: flex; align-items: center; padding: 12px 0; border-bottom: 1px solid #f0f0f0; cursor: pointer;">
+                                <div style="width: 25px; height: 25px; margin-right: 12px; display: flex; align-items: center; justify-content: center; background: #f8f9fa; border-radius: 6px; font-size: 14px;">📊</div>
+                                <div style="flex: 1;">
+                                    <span style="font-size: 13px; color: #333; display: block; margin-bottom: 2px;">使用统计</span>
+                                    <span style="font-size: 10px; color: #999;">查看使用数据分析</span>
+                                </div>
+                                <span style="font-size: 10px; color: #ccc;">></span>
+                            </div>
+                            <div style="display: flex; align-items: center; padding: 12px 0; cursor: pointer;">
+                                <div style="width: 25px; height: 25px; margin-right: 12px; display: flex; align-items: center; justify-content: center; background: #f8f9fa; border-radius: 6px; font-size: 14px;">🎁</div>
+                                <div style="flex: 1;">
+                                    <span style="font-size: 13px; color: #333; display: block; margin-bottom: 2px;">邀请好友</span>
+                                    <span style="font-size: 10px; color: #999;">邀请好友获得奖励</span>
+                                </div>
+                                <span style="font-size: 10px; color: #ccc;">></span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 设置区域 -->
+                <div class="card">
+                    <div style="padding: 15px;">
+                        <div style="display: flex; flex-direction: column; gap: 0;">
+                            <div style="display: flex; align-items: center; padding: 12px 0; border-bottom: 1px solid #f0f0f0; cursor: pointer;">
+                                <div style="width: 25px; height: 25px; margin-right: 12px; display: flex; align-items: center; justify-content: center; background: #f8f9fa; border-radius: 6px; font-size: 14px;">🔔</div>
+                                <div style="flex: 1;">
+                                    <span style="font-size: 13px; color: #333;">消息通知</span>
+                                </div>
+                                <div style="margin-right: 10px;">
+                                    <span style="font-size: 11px; color: #999;">已开启</span>
+                                </div>
+                                <span style="font-size: 10px; color: #ccc;">></span>
+                            </div>
+                            <div style="display: flex; align-items: center; padding: 12px 0; border-bottom: 1px solid #f0f0f0; cursor: pointer;">
+                                <div style="width: 25px; height: 25px; margin-right: 12px; display: flex; align-items: center; justify-content: center; background: #f8f9fa; border-radius: 6px; font-size: 14px;">🌙</div>
+                                <div style="flex: 1;">
+                                    <span style="font-size: 13px; color: #333;">夜间模式</span>
+                                </div>
+                                <div style="margin-right: 10px;">
+                                    <span style="font-size: 11px; color: #999;">跟随系统</span>
+                                </div>
+                                <span style="font-size: 10px; color: #ccc;">></span>
+                            </div>
+                            <div style="display: flex; align-items: center; padding: 12px 0; border-bottom: 1px solid #f0f0f0; cursor: pointer;">
+                                <div style="width: 25px; height: 25px; margin-right: 12px; display: flex; align-items: center; justify-content: center; background: #f8f9fa; border-radius: 6px; font-size: 14px;">🔒</div>
+                                <div style="flex: 1;">
+                                    <span style="font-size: 13px; color: #333;">隐私设置</span>
+                                </div>
+                                <span style="font-size: 10px; color: #ccc;">></span>
+                            </div>
+                            <div style="display: flex; align-items: center; padding: 12px 0; border-bottom: 1px solid #f0f0f0; cursor: pointer;">
+                                <div style="width: 25px; height: 25px; margin-right: 12px; display: flex; align-items: center; justify-content: center; background: #f8f9fa; border-radius: 6px; font-size: 14px;">❓</div>
+                                <div style="flex: 1;">
+                                    <span style="font-size: 13px; color: #333;">帮助与反馈</span>
+                                </div>
+                                <span style="font-size: 10px; color: #ccc;">></span>
+                            </div>
+                            <div style="display: flex; align-items: center; padding: 12px 0; cursor: pointer;">
+                                <div style="width: 25px; height: 25px; margin-right: 12px; display: flex; align-items: center; justify-content: center; background: #f8f9fa; border-radius: 6px; font-size: 14px;">ℹ️</div>
+                                <div style="flex: 1;">
+                                    <span style="font-size: 13px; color: #333;">关于我们</span>
+                                </div>
+                                <span style="font-size: 10px; color: #ccc;">></span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- MBTI测评页面 -->
+            <div class="page" id="mbti-page">
+                <div class="header">
+                    <button class="back-btn" data-back="home-page">←</button>
+                    <h1>MBTI测评</h1>
+                </div>
+                
+                <!-- MBTI聊天界面 -->
+                <div style="height: calc(100% - 60px); display: flex; flex-direction: column;">
+                    <!-- 聊天消息区域 -->
+                    <div id="mbti-chat-messages" style="flex: 1; overflow-y: auto; padding: 15px 20px; background: #f5f5f5;"></div>
+                    
+                    <!-- 输入区域 -->
+                    <div class="chat-input-area" style="border-top: 1px solid #e5e7eb; padding: 15px 20px; background-color: rgba(255, 255, 255, 0.7); backdrop-filter: blur(8px);">
+                        <div style="display: flex; gap: 10px; align-items: end;">
+                            <textarea id="mbti-user-input" style="flex: 1; border-radius: 16px; padding: 12px 15px; min-height: 58px; max-height: 180px; transition: border-color 0.2s, box-shadow 0.2s, background-color 0.2s; border: 1px solid #d1d5db; background-color: #f9fafb; resize: none; font-size: 14px;" placeholder="在这里输入您的回答..."></textarea>
+                            <button id="mbti-send-btn" style="min-width: 58px; height: 58px; border-radius: 16px; background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%); color: white; border: none; display: flex; align-items: center; justify-content: center; cursor: pointer; transition: all 0.3s ease; box-shadow: 0 5px 18px -7px rgba(59, 130, 246, 0.6);">
+                                <span style="font-size: 18px;">📤</span>
+                            </button>
+                            <button id="mbti-start-btn" style="background: linear-gradient(135deg, #10b981 0%, #059669 100%); color: white; border: none; border-radius: 12px; padding: 12px 16px; font-weight: 500; cursor: pointer; transition: all 0.3s ease; box-shadow: 0 5px 18px -7px rgba(16, 185, 129, 0.5); display: flex; align-items: center; gap: 6px;">
+                                <span style="font-size: 16px;">🧠</span>
+                                <span style="font-size: 12px;">开始测试</span>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- MBTI结果区域 -->
+                <div id="mbti-result-area" style="position: absolute; top: 60px; right: 20px; background: white; border-radius: 12px; padding: 15px; box-shadow: 0 4px 12px rgba(0,0,0,0.1); display: none; max-width: 200px;">
+                    <h3 style="font-size: 14px; font-weight: bold; color: #333; margin-bottom: 8px;">您的MBTI类型</h3>
+                    <div id="mbti-type-display" style="font-size: 24px; font-weight: bold; color: #3b82f6; text-align: center; margin-bottom: 4px;">----</div>
+                    <div id="mbti-type-label" style="font-size: 10px; color: #666; text-align: center;">等待测试结果</div>
+                </div>
+            </div>
+
+            <!-- 对话回复页面 -->
+            <div class="page" id="chat-page">
+                <div class="header">
+                    <button class="back-btn" data-back="home-page">←</button>
+                    <h1>对话回复大神</h1>
+                </div>
+                
+                <!-- 聊天界面 -->
+                <div style="height: calc(100% - 60px); display: flex; flex-direction: column;">
+                    <!-- 聊天消息区域 -->
+                    <div id="chat-messages" style="flex: 1; overflow-y: auto; padding: 15px 20px; background: #f5f5f5;">
+                        <div style="text-align: center; padding: 20px; color: #666;">
+                            <div style="font-size: 48px; margin-bottom: 10px;">💬</div>
+                            <div style="font-size: 14px; margin-bottom: 8px;">AI话术引擎</div>
+                            <div style="font-size: 12px;">如对接聊天结果不满意，请查看【我的】-【使用技巧】</div>
+                        </div>
+                    </div>
+                    
+                    <!-- 输入区域 -->
+                    <div class="chat-input-area" style="border-top: 1px solid #e5e7eb; padding: 15px 20px; background-color: rgba(255, 255, 255, 0.7); backdrop-filter: blur(8px);">
+                        <div style="display: flex; gap: 10px; align-items: end;">
+                            <textarea id="chat-user-input" style="flex: 1; border-radius: 16px; padding: 12px 15px; min-height: 58px; max-height: 180px; transition: border-color 0.2s, box-shadow 0.2s, background-color 0.2s; border: 1px solid #d1d5db; background-color: #f9fafb; resize: none; font-size: 14px;" placeholder="输入她的回复，我来给你说怎么回..."></textarea>
+                            <button id="chat-send-btn" style="min-width: 58px; height: 58px; border-radius: 16px; background: linear-gradient(135deg, #2196F3 0%, #1976D2 100%); color: white; border: none; display: flex; align-items: center; justify-content: center; cursor: pointer; transition: all 0.3s ease; box-shadow: 0 5px 18px -7px rgba(33, 150, 243, 0.6);">
+                                <span style="font-size: 18px;">🔍</span>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 底部导航 -->
+            <div class="tab-bar">
+                <div class="tab-item active" data-page="home-page">
+                    <span class="tab-icon">🏠</span>
+                    <span class="tab-text">首页</span>
+                </div>
+                <div class="tab-item" data-page="courses-page">
+                    <span class="tab-icon">📚</span>
+                    <span class="tab-text">课程</span>
+                </div>
+                <div class="tab-item" data-page="help-page">
+                    <span class="tab-icon">🔍</span>
+                    <span class="tab-text">发现</span>
+                </div>
+                <div class="tab-item" data-page="profile-page">
+                    <span class="tab-icon">👤</span>
+                    <span class="tab-text">我的</span>
+                </div>
+            </div>
+        </div>
+    </div>
+    <script>
+        // MBTI测评功能
+        const mbtiScenariosData = [
+            {
+                "id": "social_and_energy_scenario_1",
+                "name": "社交与精力情景",
+                "description": "这组问题旨在了解您在社交互动中如何获取和消耗精力。",
+                "questions": [
+                    {
+                        "q_id": "se_q1",
+                        "text": "想象一下，一个忙碌的工作周结束后，您感到有些疲惫。您是更倾向于参加一个朋友的聚会，通过和大家交流来放松和恢复精力，还是更喜欢独自在家，安静地做自己喜欢的事情来充电？请分享您的选择和原因。",
+                        "mbti_aspect": "E_vs_I"
+                    },
+                    {
+                        "q_id": "se_q2",
+                        "text": "当您需要解决一个复杂问题时，您是更喜欢和团队成员一起讨论、头脑风暴，从不同的观点中获得启发，还是更倾向于自己独立思考，深入钻研？为什么？",
+                        "mbti_aspect": "E_vs_I, T_vs_F"
+                    },
+                    {
+                        "q_id": "se_q3",
+                        "text": "在和不太熟悉的人交流时，您通常是能很快找到话题并主动开启对话，还是更喜欢先听对方说，慢慢加入讨论？",
+                        "mbti_aspect": "E_vs_I"
+                    }
+                ]
+            },
+            {
+                "id": "information_gathering_scenario_2",
+                "name": "信息收集情景",
+                "description": "这组问题关注您如何感知和处理信息。",
+                "questions": [
+                    {
+                        "q_id": "ig_q1",
+                        "text": "当您接触到一个全新的事物或概念时，您是更倾向于关注它的具体细节、实际用途和现状，还是更喜欢去理解它的整体规律、发展趋势和潜在意义？请举例说明。",
+                        "mbti_aspect": "S_vs_N"
+                    },
+                    {
+                        "q_id": "ig_q2",
+                        "text": "在阅读一份报告或文章时，您是更容易注意到其中的事实、数据和具体的例子，还是更容易看到作者的观点、文章的结构和潜在的含义？",
+                        "mbti_aspect": "S_vs_N"
+                    }
+                ]
+            },
+            {
+                "id": "decision_making_scenario_3",
+                "name": "决策与判断情景",
+                "description": "这组问题旨在了解您在做决定和评价事物时更看重什么。",
+                "questions": [
+                    {
+                        "q_id": "dm_q1",
+                        "text": "当您需要做一个重要决定时，您是更倾向于依赖逻辑分析、权衡利弊、追求客观和公平，还是更倾向于考虑自己的价值观、对他人的影响以及是否符合您的感受？请描述一个您最近做重要决定的过程。",
+                        "mbti_aspect": "T_vs_F"
+                    },
+                    {
+                        "q_id": "dm_q2",
+                        "text": "在评价一件事情的好坏时，您是更看重它是否合理、有效、符合逻辑标准，还是更关注它是否和谐、温暖、符合人情？",
+                        "mbti_aspect": "T_vs_F"
+                    }
+                ]
+            },
+            {
+                "id": "lifestyle_organization_scenario_4",
+                "name": "生活方式情景",
+                "description": "这组问题关注您如何组织和安排自己的生活。",
+                "questions": [
+                    {
+                        "q_id": "lo_q1",
+                        "text": "对于您的日常生活，您更喜欢提前做好详细的计划和安排，按部就班地执行，还是更喜欢保持灵活性，根据当时的情况和心情来决定做什么？",
+                        "mbti_aspect": "J_vs_P"
+                    },
+                    {
+                        "q_id": "lo_q2",
+                        "text": "当遇到突发状况需要改变既定计划时，您通常会感到困扰和不适应，还是会感到兴奋和有趣？请举个例子。",
+                        "mbti_aspect": "J_vs_P"
+                    }
+                ]
+            }
+        ];
+
+        // MBTI状态变量
+        let isMbtiTestActive = false;
+        let currentMbtiQuestionIndex = 0;
+        let mbtiScores = { E: 0, I: 0, S: 0, N: 0, T: 0, F: 0, J: 0, P: 0 };
+        let currentMbtiQuestionText = "";
+        let currentMbtiAspect = "";
+        let allMbtiQuestions = [];
+        let mbtiConversationHistory = [];
+
+        // MBTI DOM元素
+        let mbtiChatMessages, mbtiUserInput, mbtiSendBtn, mbtiStartBtn, mbtiResultArea, mbtiTypeDisplay, mbtiTypeLabel;
+
+        // 工具函数：洗牌算法
+        function shuffleArray(array) {
+            for (let i = array.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [array[i], array[j]] = [array[j], array[i]];
+            }
+        }
+
+        // 添加MBTI消息
+        function addMbtiMessage(message, type) {
+            const messageWrapper = document.createElement('div');
+            messageWrapper.className = `mbti-message ${type}-message`;
+            messageWrapper.style.cssText = `
+                margin-bottom: 15px;
+                display: flex;
+                ${type === 'user' ? 'justify-content: flex-end;' : 'justify-content: flex-start;'}
+            `;
+            
+            const messageContent = document.createElement('div');
+            messageContent.style.cssText = `
+                max-width: 70%;
+                padding: 12px 16px;
+                border-radius: 18px;
+                font-size: 14px;
+                line-height: 1.4;
+                ${type === 'user' ? 
+                    'background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%); color: white; border-bottom-right-radius: 6px;' : 
+                    'background: white; color: #333; border: 1px solid #e5e7eb; border-bottom-left-radius: 6px; box-shadow: 0 2px 4px rgba(0,0,0,0.1);'
+                }
+            `;
+            messageContent.innerHTML = message;
+            messageWrapper.appendChild(messageContent);
+            
+            mbtiConversationHistory.push({ role: type === 'user' ? 'user' : 'assistant', content: message });
+            
+            if (mbtiChatMessages) {
+                mbtiChatMessages.appendChild(messageWrapper);
+                mbtiChatMessages.scrollTop = mbtiChatMessages.scrollHeight;
+            }
+        }
+
+        // 初始化MBTI问题
+        function initializeMbtiQuestions() {
+            allMbtiQuestions = [];
+            mbtiScenariosData.forEach(scenario => {
+                scenario.questions.forEach(question => {
+                    allMbtiQuestions.push(question);
+                });
+            });
+            shuffleArray(allMbtiQuestions);
+            // 限制问题数量
+            allMbtiQuestions = allMbtiQuestions.slice(0, 8);
+        }
+
+        // 开始MBTI测试
+        function startMbtiTest() {
+            if (isMbtiTestActive) {
+                addMbtiMessage("MBTI性格探索已经在进行中。如果您想重新开始，请先完成当前测试。", 'bot');
+                return;
+            }
+            isMbtiTestActive = true;
+            currentMbtiQuestionIndex = 0;
+            mbtiScores = { E: 0, I: 0, S: 0, N: 0, T: 0, F: 0, J: 0, P: 0 };
+            mbtiTypeDisplay.textContent = "----";
+            mbtiTypeLabel.textContent = "测试进行中";
+            mbtiResultArea.style.display = 'block';
+            
+            // 清空聊天记录
+            mbtiChatMessages.innerHTML = '';
+            
+            addMbtiMessage("好的，我们开始MBTI性格倾向探索。请根据您的真实感受回答以下几个问题。", 'bot');
+            initializeMbtiQuestions();
+            askNextMbtiQuestion();
+        }
+
+        // 询问下一个MBTI问题
+        function askNextMbtiQuestion() {
+            if (currentMbtiQuestionIndex < allMbtiQuestions.length) {
+                const question = allMbtiQuestions[currentMbtiQuestionIndex];
+                currentMbtiQuestionText = question.text;
+                currentMbtiAspect = question.mbti_aspect;
+                setTimeout(() => {
+                    addMbtiMessage(`问题 ${currentMbtiQuestionIndex + 1}/${allMbtiQuestions.length}: ${question.text}`, 'bot');
+                }, 500);
+            } else {
+                calculateAndShowMbtiResult();
+            }
+        }
+
+        // 计算并显示MBTI结果
+        function calculateAndShowMbtiResult() {
+            let mbtiType = '';
+            mbtiType += mbtiScores.E >= mbtiScores.I ? 'E' : 'I';
+            mbtiType += mbtiScores.S >= mbtiScores.N ? 'S' : 'N';
+            mbtiType += mbtiScores.T >= mbtiScores.F ? 'T' : 'F';
+            mbtiType += mbtiScores.J >= mbtiScores.P ? 'J' : 'P';
+
+            addMbtiMessage(`根据我们的对话，您的MBTI倾向初步判断为：<strong style="color: #3b82f6; font-size: 16px;">${mbtiType}</strong>。这有助于我们更好地交流。请记住，这仅为参考，更准确的评估建议进行更全面的测试。`, 'bot');
+            mbtiTypeDisplay.textContent = mbtiType;
+            mbtiTypeDisplay.style.color = '#3b82f6';
+            mbtiTypeLabel.textContent = "您的预估类型";
+            isMbtiTestActive = false;
+        }
+
+        // 处理MBTI用户消息
+        function handleMbtiUserMessage() {
+            const userMessage = mbtiUserInput.value.trim();
+            if (userMessage === '') return;
+
+            addMbtiMessage(userMessage, 'user');
+            mbtiUserInput.value = '';
+
+            if (isMbtiTestActive) {
+                // 简化的分析逻辑
+                const aspect = currentMbtiAspect;
+                const aspectPairs = aspect.split(',').map(s => s.trim());
+                
+                aspectPairs.forEach(pair => {
+                    const [pole1, pole2] = pair.split('_vs_');
+                    const userText = userMessage.toLowerCase();
+                    
+                    // 简单的关键词分析
+                    if (pair === 'E_vs_I') {
+                        if (userText.includes('团队') || userText.includes('朋友') || userText.includes('交流') || userText.includes('聚会') || userText.includes('一起')) {
+                            mbtiScores.E++;
+                        } else if (userText.includes('独自') || userText.includes('安静') || userText.includes('思考') || userText.includes('自己')) {
+                            mbtiScores.I++;
+                        }
+                    } else if (pair === 'S_vs_N') {
+                        if (userText.includes('具体') || userText.includes('细节') || userText.includes('事实') || userText.includes('现实')) {
+                            mbtiScores.S++;
+                        } else if (userText.includes('整体') || userText.includes('趋势') || userText.includes('可能') || userText.includes('未来')) {
+                            mbtiScores.N++;
+                        }
+                    } else if (pair === 'T_vs_F') {
+                        if (userText.includes('逻辑') || userText.includes('分析') || userText.includes('客观') || userText.includes('效率')) {
+                            mbtiScores.T++;
+                        } else if (userText.includes('感受') || userText.includes('价值观') || userText.includes('和谐') || userText.includes('人情')) {
+                            mbtiScores.F++;
+                        }
+                    } else if (pair === 'J_vs_P') {
+                        if (userText.includes('计划') || userText.includes('安排') || userText.includes('按部就班') || userText.includes('规律')) {
+                            mbtiScores.J++;
+                        } else if (userText.includes('灵活') || userText.includes('随意') || userText.includes('兴奋') || userText.includes('变化')) {
+                            mbtiScores.P++;
+                        }
+                    }
+                });
+
+                currentMbtiQuestionIndex++;
+                setTimeout(() => {
+                    askNextMbtiQuestion();
+                }, 1000);
+            }
+        }
+
+        // MBTI DOM元素初始化
+        function initializeMbtiElements() {
+            mbtiChatMessages = document.getElementById('mbti-chat-messages');
+            mbtiUserInput = document.getElementById('mbti-user-input');
+            mbtiSendBtn = document.getElementById('mbti-send-btn');
+            mbtiStartBtn = document.getElementById('mbti-start-btn');
+            mbtiResultArea = document.getElementById('mbti-result-area');
+            mbtiTypeDisplay = document.getElementById('mbti-type-display');
+            mbtiTypeLabel = document.getElementById('mbti-type-label');
+
+            // 添加初始欢迎界面
+            if (mbtiChatMessages && mbtiChatMessages.children.length === 0) {
+                const welcomeDiv = document.createElement('div');
+                welcomeDiv.style.cssText = 'text-align: center; padding: 20px; color: #666;';
+                welcomeDiv.innerHTML = `
+                    <div style="font-size: 48px; margin-bottom: 10px;">🧠</div>
+                    <div style="font-size: 14px; margin-bottom: 8px;">MBTI性格测评</div>
+                    <div style="font-size: 12px;">点击下方"开始测试"按钮开始性格测评</div>
+                `;
+                mbtiChatMessages.appendChild(welcomeDiv);
+            }
+
+            // 绑定事件
+            if (mbtiStartBtn) {
+                mbtiStartBtn.addEventListener('click', startMbtiTest);
+            }
+            if (mbtiSendBtn) {
+                mbtiSendBtn.addEventListener('click', handleMbtiUserMessage);
+            }
+            if (mbtiUserInput) {
+                mbtiUserInput.addEventListener('keypress', function(e) {
+                    if (e.key === 'Enter' && !e.shiftKey) {
+                        e.preventDefault();
+                        handleMbtiUserMessage();
+                    }
+                });
+            }
+        }
+
+        // 页面加载完成后初始化
+        document.addEventListener('DOMContentLoaded', function() {
+            initializeMbtiElements();
+            initializeChatElements();
+        });
+
+        // 页面切换功能
+        document.querySelectorAll('.tab-item').forEach(tab => {
+            tab.addEventListener('click', function() {
+                // 移除所有活动状态
+                document.querySelectorAll('.page').forEach(page => {
+                    page.classList.remove('active');
+                });
+                document.querySelectorAll('.tab-item').forEach(t => {
+                    t.classList.remove('active');
+                });
+                
+                // 添加当前活动状态
+                this.classList.add('active');
+                const pageId = this.getAttribute('data-page');
+                const targetPage = document.getElementById(pageId);
+                if (targetPage) {
+                    targetPage.classList.add('active');
+                }
+            });
+        });
+
+        // 功能模块点击事件
+        document.querySelectorAll('.feature-item').forEach(item => {
+            item.addEventListener('click', function() {
+                const feature = this.getAttribute('data-feature');
+                if (feature) {
+                    // 隐藏所有页面
+                    document.querySelectorAll('.page').forEach(page => {
+                        page.classList.remove('active');
+                    });
+                    // 移除所有tab活动状态
+                    document.querySelectorAll('.tab-item').forEach(t => {
+                        t.classList.remove('active');
+                    });
+                    // 显示对应的功能页面
+                    const targetPage = document.getElementById(feature + '-page');
+                    if (targetPage) {
+                        targetPage.classList.add('active');
+                        
+                        // 如果是MBTI页面，确保元素已初始化
+                        if (feature === 'mbti') {
+                            // 短暂延迟以确保页面DOM已渲染
+                            setTimeout(() => {
+                                initializeMbtiElements();
+                            }, 100);
+                        }
+                    }
+                }
+            });
+        });
+
+        // 返回按钮功能
+        document.querySelectorAll('.back-btn').forEach(btn => {
+            btn.addEventListener('click', function() {
+                // 直接显示主页
+                document.getElementById('home-page').classList.add('active');
+                // 隐藏其他所有页面
+                document.querySelectorAll('.page').forEach(page => {
+                    if (page.id !== 'home-page') {
+                        page.classList.remove('active');
+                    }
+                });
+                // 激活首页tab
+                document.querySelectorAll('.tab-item').forEach(t => {
+                    t.classList.remove('active');
+                });
+                document.querySelector('[data-page="home-page"]').classList.add('active');
+            });
+        });
+
+        // 分类标签切换
+        document.querySelectorAll('.category-tab').forEach(tab => {
+            tab.addEventListener('click', function() {
+                document.querySelectorAll('.category-tab').forEach(t => {
+                    t.classList.remove('active');
+                });
+                this.classList.add('active');
+            });
+        });
+
+        // 筛选标签切换
+        document.querySelectorAll('.filter-tag').forEach(tag => {
+            tag.addEventListener('click', function() {
+                document.querySelectorAll('.filter-tag').forEach(t => {
+                    t.classList.remove('active');
+                });
+                this.classList.add('active');
+            });
+        });
+
+        // 情头选择
+        document.querySelectorAll('.avatar-item').forEach(item => {
+            item.addEventListener('click', function() {
+                document.querySelectorAll('.avatar-item').forEach(i => {
+                    i.classList.remove('selected');
+                });
+                this.classList.add('selected');
+            });
+        });
+
+        // 复制按钮功能
+        document.querySelectorAll('.btn-copy').forEach(btn => {
+            btn.addEventListener('click', function() {
+                const text = this.parentElement.previousElementSibling.textContent;
+                navigator.clipboard.writeText(text).then(() => {
+                    this.textContent = '已复制';
+                    setTimeout(() => {
+                        this.textContent = '复制';
+                    }, 2000);
+                });
+            });
+        });
+
+        // 聊天页面功能
+        let chatMessages, chatUserInput, chatSendBtn;
+
+        // 添加聊天消息
+        function addChatMessage(message, type) {
+            const messageWrapper = document.createElement('div');
+            messageWrapper.style.cssText = `
+                margin-bottom: 15px;
+                display: flex;
+                ${type === 'user' ? 'justify-content: flex-end;' : 'justify-content: flex-start;'}
+            `;
+            
+            const messageContent = document.createElement('div');
+            messageContent.style.cssText = `
+                max-width: 70%;
+                padding: 12px 16px;
+                border-radius: 18px;
+                font-size: 14px;
+                line-height: 1.4;
+                ${type === 'user' ? 
+                    'background: linear-gradient(135deg, #2196F3 0%, #1976D2 100%); color: white; border-bottom-right-radius: 6px;' : 
+                    'background: white; color: #333; border: 1px solid #e5e7eb; border-bottom-left-radius: 6px; box-shadow: 0 2px 4px rgba(0,0,0,0.1);'
+                }
+            `;
+            messageContent.innerHTML = message;
+            messageWrapper.appendChild(messageContent);
+            
+            if (chatMessages) {
+                chatMessages.appendChild(messageWrapper);
+                chatMessages.scrollTop = chatMessages.scrollHeight;
+            }
+        }
+
+        // 处理聊天回复
+        function handleChatMessage() {
+            const userMessage = chatUserInput.value.trim();
+            if (userMessage === '') return;
+
+            // 显示用户消息
+            addChatMessage(userMessage, 'user');
+            chatUserInput.value = '';
+
+            // 模拟AI分析和回复
+            setTimeout(() => {
+                // 基于输入内容生成不同类型的回复
+                const replyTypes = {
+                    '我去睡了': [
+                        "这么早就睡了？是累坏了吗？",
+                        "记得我在你身边也铺个床位",
+                        "睡着了也不要忘记想我哦"
+                    ],
+                    '我去洗澡了': [
+                        "这么早就睡你是树袋熊吗",
+                        "好好睡觉，晚上不要踢被子。",
+                        "好好睡觉，晚上不要踢被子"
+                    ],
+                    '嗯嗯': [
+                        "看起来你心情不错呢，在想什么呢？",
+                        "嗯嗯，那我们继续聊天吧～",
+                        "简洁明了，我喜欢这样的回复风格"
+                    ],
+                    '好的': [
+                        "那就这么说定了哦～",
+                        "嗯嗯，期待接下来的安排",
+                        "好的收到，那我们就这样安排吧"
+                    ],
+                    '忙': [
+                        "那你先忙，忙完了记得告诉我",
+                        "工作要紧，我等你有空再聊",
+                        "加油！忙完了一起聊天放松一下"
+                    ]
+                };
+                
+                // 查找匹配的回复类型
+                let selectedReplies = [];
+                for (const [key, replies] of Object.entries(replyTypes)) {
+                    if (userMessage.includes(key)) {
+                        selectedReplies = replies;
+                        break;
+                    }
+                }
+                
+                // 如果没有匹配的类型，使用通用回复
+                if (selectedReplies.length === 0) {
+                    selectedReplies = [
+                        "收到你的消息，让我想想怎么回复比较好",
+                        "哈哈，有趣的回复，我想和你继续聊下去",
+                        "感谢你的回复，我们的对话越来越有趣了"
+                    ];
+                }
+                
+                // 显示所有回复选项
+                selectedReplies.forEach((reply, index) => {
+                    setTimeout(() => {
+                        const replyWithCopy = `
+                            <div style="display: flex; justify-content: space-between; align-items: center;">
+                                <span style="flex: 1;">${reply}</span>
+                                <button onclick="copyToClipboard('${reply}')" style="background: #2196F3; color: white; border: none; border-radius: 4px; padding: 4px 8px; font-size: 10px; cursor: pointer; margin-left: 10px;">复制</button>
+                            </div>
+                        `;
+                        addChatMessage(replyWithCopy, 'bot');
+                    }, index * 500);
+                });
+            }, 1000);
+        }
+
+        // 复制到剪贴板
+        function copyToClipboard(text) {
+            navigator.clipboard.writeText(text).then(() => {
+                // 显示复制成功提示
+                const Toast = document.createElement('div');
+                Toast.style.cssText = `
+                    position: fixed;
+                    top: 50%;
+                    left: 50%;
+                    transform: translate(-50%, -50%);
+                    background: rgba(0,0,0,0.8);
+                    color: white;
+                    padding: 10px 20px;
+                    border-radius: 6px;
+                    font-size: 14px;
+                    z-index: 9999;
+                `;
+                Toast.textContent = '已复制到剪贴板';
+                document.body.appendChild(Toast);
+                setTimeout(() => {
+                    document.body.removeChild(Toast);
+                }, 2000);
+            });
+        }
+
+        // 初始化聊天页面元素
+        function initializeChatElements() {
+            chatMessages = document.getElementById('chat-messages');
+            chatUserInput = document.getElementById('chat-user-input');
+            chatSendBtn = document.getElementById('chat-send-btn');
+
+            // 绑定事件
+            if (chatSendBtn) {
+                chatSendBtn.addEventListener('click', handleChatMessage);
+            }
+            if (chatUserInput) {
+                chatUserInput.addEventListener('keypress', function(e) {
+                    if (e.key === 'Enter' && !e.shiftKey) {
+                        e.preventDefault();
+                        handleChatMessage();
+                    }
+                });
+            }
+        }
+
+        // 获取回复按钮功能 - 跳转到聊天页面
+        document.querySelector('.btn-primary').addEventListener('click', function() {
+            const userInput = document.querySelector('.input-area').value.trim();
+            
+            // 隐藏所有页面
+            document.querySelectorAll('.page').forEach(page => {
+                page.classList.remove('active');
+            });
+            // 移除所有tab活动状态
+            document.querySelectorAll('.tab-item').forEach(t => {
+                t.classList.remove('active');
+            });
+            
+            // 显示聊天页面
+            document.getElementById('chat-page').classList.add('active');
+            
+            // 如果有输入内容，自动填充到聊天页面
+            setTimeout(() => {
+                if (userInput && chatUserInput) {
+                    chatUserInput.value = userInput;
+                    // 清空首页输入框
+                    document.querySelector('.input-area').value = '';
+                }
+                // 确保聊天页面元素已初始化
+                initializeChatElements();
+            }, 100);
+        });
+
+        // 发现页面获取回复按钮功能 - 也跳转到聊天页面
+        const helpPageReplyBtn = document.querySelector('#help-page .btn-primary');
+        if (helpPageReplyBtn) {
+            helpPageReplyBtn.addEventListener('click', function() {
+                const helpInput = document.querySelector('#help-page textarea').value.trim();
+                
+                // 隐藏所有页面
+                document.querySelectorAll('.page').forEach(page => {
+                    page.classList.remove('active');
+                });
+                // 移除所有tab活动状态
+                document.querySelectorAll('.tab-item').forEach(t => {
+                    t.classList.remove('active');
+                });
+                
+                // 显示聊天页面
+                document.getElementById('chat-page').classList.add('active');
+                
+                // 如果有输入内容，自动填充到聊天页面
+                setTimeout(() => {
+                    if (helpInput && chatUserInput) {
+                        chatUserInput.value = helpInput;
+                        // 清空发现页面输入框
+                        document.querySelector('#help-page textarea').value = '';
+                    }
+                    // 确保聊天页面元素已初始化
+                    initializeChatElements();
+                }, 100);
+            });
+        }
+    </script>
+</body>
+</html> 
